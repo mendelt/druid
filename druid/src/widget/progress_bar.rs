@@ -25,13 +25,13 @@ use crate::{BoxConstraints, Env, Event, EventCtx, LayoutCtx, PaintCtx, UpdateCtx
 pub struct ProgressBar {}
 
 impl ProgressBar {
-    pub fn new() -> impl Widget<f64> {
+    pub fn new<S>() -> impl Widget<f64, S> {
         Align::vertical(UnitPoint::CENTER, Self::default())
     }
 }
 
-impl Widget<f64> for ProgressBar {
-    fn event(&mut self, _ctx: &mut EventCtx, _event: &Event, _data: &mut f64, _env: &Env) {}
+impl<S> Widget<f64, S> for ProgressBar {
+    fn event(&mut self, _ctx: &mut EventCtx, _event: &Event, _data: &mut f64, style_parent: &mut S, _env: &Env) {}
 
     fn update(&mut self, ctx: &mut UpdateCtx, _old_data: Option<&f64>, _data: &f64, _env: &Env) {
         ctx.invalidate();

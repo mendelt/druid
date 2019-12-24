@@ -96,21 +96,21 @@ impl Default for ScrollBarsState {
 /// when the child's bounds are larger than the viewport.
 ///
 /// The child is laid out with completely unconstrained layout bounds.
-pub struct Scroll<T: Data, W: Widget<T>> {
-    child: WidgetPod<T, W>,
+pub struct Scroll<T: Data, S, W: Widget<T, S>> {
+    child: WidgetPod<T, S, W>,
     child_size: Size,
     scroll_offset: Vec2,
     direction: ScrollDirection,
     scroll_bars: ScrollBarsState,
 }
 
-impl<T: Data, W: Widget<T>> Scroll<T, W> {
+impl<T: Data, S, W: Widget<T, S>> Scroll<T, S, W> {
     /// Create a new scroll container.
     ///
     /// This method will allow scrolling in all directions if child's bounds
     /// are larger than the viewport. Use [vertical](#method.vertical)
     /// and [horizontal](#method.horizontal) methods to limit scroll behavior.
-    pub fn new(child: W) -> Scroll<T, W> {
+    pub fn new(child: W) -> Scroll<T, S, W> {
         Scroll {
             child: WidgetPod::new(child),
             child_size: Default::default(),
@@ -263,8 +263,8 @@ impl<T: Data, W: Widget<T>> Scroll<T, W> {
     }
 }
 
-impl<T: Data, W: Widget<T>> Widget<T> for Scroll<T, W> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+impl<T: Data, S, W: Widget<T, S>> Widget<T, S> for Scroll<T, S, W> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         let size = ctx.size();
         let viewport = Rect::from_origin_size(Point::ORIGIN, size);
 
@@ -342,7 +342,7 @@ impl<T: Data, W: Widget<T>> Widget<T> for Scroll<T, W> {
         } else {
             let child_event = event.transform_scroll(self.scroll_offset, viewport);
             if let Some(child_event) = child_event {
-                self.child.event(ctx, &child_event, data, env)
+                self.child.event(ctx, &child_event, data, style_parent, env)
             };
 
             match event {

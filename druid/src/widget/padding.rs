@@ -20,19 +20,19 @@ use crate::{
 };
 
 /// A widget that just adds padding around its child.
-pub struct Padding<T: Data> {
+pub struct Padding<T: Data, S> {
     left: f64,
     right: f64,
     top: f64,
     bottom: f64,
 
-    child: WidgetPod<T, Box<dyn Widget<T>>>,
+    child: WidgetPod<T, S, Box<dyn Widget<T, S>>>,
 }
 
-impl<T: Data> Padding<T> {
+impl<T: Data, S> Padding<T, S> {
     /// Create widget with uniform padding.
     #[deprecated(since = "0.3.0", note = "Use Padding::new() instead")]
-    pub fn uniform(padding: f64, child: impl Widget<T> + 'static) -> Padding<T> {
+    pub fn uniform(padding: f64, child: impl Widget<T, S> + 'static) -> Padding<T, S> {
         Padding {
             left: padding,
             right: padding,
@@ -71,7 +71,7 @@ impl<T: Data> Padding<T> {
     /// ```
     ///
     /// [`kurbo::Insets`]: https://docs.rs/kurbo/0.5.3/kurbo/struct.Insets.html
-    pub fn new(insets: impl Into<Insets>, child: impl Widget<T> + 'static) -> Padding<T> {
+    pub fn new(insets: impl Into<Insets>, child: impl Widget<T, S> + 'static) -> Padding<T, S> {
         let insets = insets.into();
         Padding {
             left: insets.x0,
@@ -83,9 +83,9 @@ impl<T: Data> Padding<T> {
     }
 }
 
-impl<T: Data> Widget<T> for Padding<T> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
-        self.child.event(ctx, event, data, env)
+impl<T: Data, S> Widget<T, S> for Padding<T, S> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
+        self.child.event(ctx, event, data, style_parent, env)
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, _old_data: Option<&T>, data: &T, env: &Env) {

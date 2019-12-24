@@ -211,17 +211,17 @@ impl<U, L, W> LensWrap<U, L, W> {
     }
 }
 
-impl<T, U, L, W> Widget<T> for LensWrap<U, L, W>
+impl<T, S, U, L, W> Widget<T, S> for LensWrap<U, L, W>
 where
     T: Data,
     U: Data,
     L: Lens<T, U>,
-    W: Widget<U>,
+    W: Widget<U, S>,
 {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         let inner = &mut self.inner;
         self.lens
-            .with_mut(data, |data| inner.event(ctx, event, data, env))
+            .with_mut(data, |data| inner.event(ctx, event, data, style_parent, env))
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: Option<&T>, data: &T, env: &Env) {

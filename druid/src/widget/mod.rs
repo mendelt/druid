@@ -105,7 +105,7 @@ use crate::{BoxConstraints, Env, Event, EventCtx, LayoutCtx, PaintCtx, UpdateCtx
 /// [`update`]: #tymethod.update
 /// [`Data`]: trait.Data.html
 /// [`WidgetPod`]: struct.WidgetPod.html
-pub trait Widget<T> {
+pub trait Widget<T, S> {
     /// Handle an event.
     ///
     /// A number of different events (in the [`Event`] enum) are handled in this
@@ -116,7 +116,7 @@ pub trait Widget<T> {
     /// [`Event`]: struct.Event.html
     /// [`EventCtx`]: struct.EventCtx.html
     /// [`Command`]: struct.Command.html
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env);
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env);
 
     /// Handle a change of data.
     ///
@@ -172,9 +172,9 @@ pub trait Widget<T> {
 
 // TODO: explore getting rid of this (ie be consistent about using
 // `dyn Widget` only).
-impl<T> Widget<T> for Box<dyn Widget<T>> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
-        self.deref_mut().event(ctx, event, data, env)
+impl<T, S> Widget<T, S> for Box<dyn Widget<T, S>> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
+        self.deref_mut().event(ctx, event, data, style_parent, env)
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: Option<&T>, data: &T, env: &Env) {

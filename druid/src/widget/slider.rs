@@ -29,7 +29,7 @@ pub struct Slider {
 }
 
 impl Slider {
-    pub fn new() -> impl Widget<f64> {
+    pub fn new<S>() -> impl Widget<f64, S> {
         Align::vertical(UnitPoint::CENTER, Self::default())
     }
 }
@@ -47,8 +47,8 @@ impl Slider {
     }
 }
 
-impl Widget<f64> for Slider {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut f64, env: &Env) {
+impl<S> Widget<f64, S> for Slider {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut f64, style_parent: &mut S, env: &Env) {
         let knob_size = env.get(theme::BASIC_WIDGET_HEIGHT);
         let slider_width = ctx.size().width;
 

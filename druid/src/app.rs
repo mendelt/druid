@@ -28,20 +28,20 @@ use crate::{theme, AppDelegate, Data, DruidHandler, Env, LocalizedString, MenuDe
 type EnvSetupFn = dyn FnOnce(&mut Env);
 
 /// Handles initial setup of an application, and starts the runloop.
-pub struct AppLauncher<T> {
+pub struct AppLauncher<T: Data> {
     windows: Vec<WindowDesc<T>>,
     env_setup: Option<Box<EnvSetupFn>>,
     delegate: Option<Box<dyn AppDelegate<T>>>,
 }
 
 /// A function that can create a widget.
-type WidgetBuilderFn<T> = dyn Fn() -> Box<dyn Widget<T>> + 'static;
+type WidgetBuilderFn<T> = dyn Fn() -> Box<dyn Widget<T, Window<T>>> + 'static;
 
 /// A description of a window to be instantiated.
 ///
 /// This includes a function that can build the root widget, as well as other
 /// window properties such as the title.
-pub struct WindowDesc<T> {
+pub struct WindowDesc<T: Data> {
     pub(crate) root_builder: Arc<WidgetBuilderFn<T>>,
     pub(crate) title: Option<LocalizedString<T>>,
     pub(crate) size: Option<Size>,
@@ -121,7 +121,7 @@ impl<T: Data + 'static> WindowDesc<T> {
     /// [`Widget`]: trait.Widget.html
     pub fn new<W, F>(root: F) -> WindowDesc<T>
     where
-        W: Widget<T> + 'static,
+        W: Widget<T, Window<T>> + 'static,
         F: Fn() -> W + 'static,
     {
         // wrap this closure in another closure that dyns the result

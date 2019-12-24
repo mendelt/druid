@@ -23,15 +23,15 @@ use crate::{
 };
 
 /// A list widget for a variable-size collection of items.
-pub struct List<T: Data> {
-    closure: Box<dyn Fn() -> Box<dyn Widget<T>>>,
-    children: Vec<WidgetPod<T, Box<dyn Widget<T>>>>,
+pub struct List<T: Data, S> {
+    closure: Box<dyn Fn() -> Box<dyn Widget<T, S>>>,
+    children: Vec<WidgetPod<T, S, Box<dyn Widget<T, S>>>>,
 }
 
-impl<T: Data> List<T> {
+impl<T: Data, S> List<T, S> {
     /// Create a new list widget. Closure will be called every time when a new child
     /// needs to be constructed.
-    pub fn new<W: Widget<T> + 'static>(closure: impl Fn() -> W + 'static) -> Self {
+    pub fn new<W: Widget<T, S> + 'static>(closure: impl Fn() -> W + 'static) -> Self {
         List {
             closure: Box::new(move || Box::new(closure())),
             children: Vec::new(),
@@ -122,12 +122,12 @@ impl<T1: Data, T: Data> ListIter<(T1, T)> for (T1, Arc<Vec<T>>) {
     }
 }
 
-impl<C: Data, T: ListIter<C>> Widget<T> for List<C> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+impl<C: Data, T: ListIter<C>, S> Widget<T, S> for List<C, S> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         let mut children = self.children.iter_mut();
         data.for_each_mut(|child_data, _| {
             if let Some(child) = children.next() {
-                child.event(ctx, event, child_data, env);
+                child.event(ctx, event, child_data, style_parent, env);
             }
         });
     }

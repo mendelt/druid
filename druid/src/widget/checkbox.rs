@@ -22,16 +22,16 @@ use crate::{BoxConstraints, Env, Event, EventCtx, LayoutCtx, PaintCtx, UpdateCtx
 
 /// A checkbox that toggles a boolean
 #[derive(Debug, Clone, Default)]
-pub struct Checkbox;
+pub struct Checkbox {}
 
 impl Checkbox {
-    pub fn new() -> impl Widget<bool> {
+    pub fn new<S>() -> impl Widget<bool, S> {
         Align::vertical(UnitPoint::CENTER, Self::default())
     }
 }
 
-impl Widget<bool> for Checkbox {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut bool, _env: &Env) {
+impl<S> Widget<bool, S> for Checkbox {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut bool, style_parent: &mut S, _env: &Env) {
         match event {
             Event::MouseDown(_) => {
                 ctx.set_active(true);

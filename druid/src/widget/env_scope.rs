@@ -20,13 +20,13 @@ use crate::kurbo::Size;
 use crate::{BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, PaintCtx, UpdateCtx, Widget};
 
 /// A widget that accepts a closure to update the environment for its child.
-pub struct EnvScope<T: Data, W: Widget<T>> {
+pub struct EnvScope<T: Data, S, W: Widget<T, S>> {
     f: Box<dyn Fn(&mut Env)>,
     child: W,
     phantom: PhantomData<T>,
 }
 
-impl<T: Data, W: Widget<T>> EnvScope<T, W> {
+impl<T: Data, S, W: Widget<T, S>> EnvScope<T, S, W> {
     /// Create a widget that updates the environment for its child.
     ///
     /// Accepts a closure that sets Env values.
@@ -48,7 +48,7 @@ impl<T: Data, W: Widget<T>> EnvScope<T, W> {
     ///
     /// # }
     /// ```
-    pub fn new(f: impl Fn(&mut Env) + 'static, child: W) -> EnvScope<T, W> {
+    pub fn new(f: impl Fn(&mut Env) + 'static, child: W) -> EnvScope<T, S, W> {
         EnvScope {
             f: Box::new(f),
             child,
@@ -57,12 +57,12 @@ impl<T: Data, W: Widget<T>> EnvScope<T, W> {
     }
 }
 
-impl<T: Data, W: Widget<T>> Widget<T> for EnvScope<T, W> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+impl<T: Data, S, W: Widget<T, S>> Widget<T, S> for EnvScope<T, S, W> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         let mut new_env = env.clone();
         (self.f)(&mut new_env);
 
-        self.child.event(ctx, event, data, &new_env)
+        self.child.event(ctx, event, data, style_parent, &new_env)
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, old_data: Option<&T>, data: &T, env: &Env) {

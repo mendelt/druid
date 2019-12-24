@@ -103,11 +103,12 @@ pub struct TextBox {
 
 impl TextBox {
     /// Create a new TextBox widget
-    pub fn new() -> impl Widget<String> {
+    pub fn new<S>() -> impl Widget<String, S> {
         Align::vertical(UnitPoint::CENTER, Self::raw())
     }
+
     /// Create a new TextBox widget with placeholder
-    pub fn with_placeholder<T: Into<String>>(placeholder: T) -> impl Widget<String> {
+    pub fn with_placeholder<T: Into<String>, S>(placeholder: T) -> impl Widget<String, S> {
         let mut textbox = Self::raw();
         textbox.placeholder = placeholder.into();
         Align::vertical(UnitPoint::CENTER, textbox)
@@ -221,7 +222,7 @@ impl TextBox {
     }
 }
 
-impl Widget<String> for TextBox {
+impl<S> Widget<String, S> for TextBox {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut String, env: &Env) {
         // Guard against external changes in data
         self.selection = self.selection.constrain_to(data);

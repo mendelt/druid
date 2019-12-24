@@ -20,23 +20,23 @@ use crate::{
 };
 
 /// A widget that switches between two possible child views.
-pub struct Either<T: Data> {
+pub struct Either<T: Data, S> {
     closure: Box<dyn Fn(&T, &Env) -> bool>,
-    true_branch: WidgetPod<T, Box<dyn Widget<T>>>,
-    false_branch: WidgetPod<T, Box<dyn Widget<T>>>,
+    true_branch: WidgetPod<T, S, Box<dyn Widget<T, S>>>,
+    false_branch: WidgetPod<T, S, Box<dyn Widget<T, S>>>,
     current: bool,
 }
 
-impl<T: Data> Either<T> {
+impl<T: Data, S> Either<T, S> {
     /// Create a new widget that switches between two views.
     ///
     /// The given closure is evaluated on data change. If its value is `true`, then
     /// the `true_branch` widget is shown, otherwise `false_branch`.
     pub fn new(
         closure: impl Fn(&T, &Env) -> bool + 'static,
-        true_branch: impl Widget<T> + 'static,
-        false_branch: impl Widget<T> + 'static,
-    ) -> Either<T> {
+        true_branch: impl Widget<T, S> + 'static,
+        false_branch: impl Widget<T, S> + 'static,
+    ) -> Either<T, S> {
         Either {
             closure: Box::new(closure),
             true_branch: WidgetPod::new(true_branch).boxed(),
@@ -46,12 +46,12 @@ impl<T: Data> Either<T> {
     }
 }
 
-impl<T: Data> Widget<T> for Either<T> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+impl<T: Data, S> Widget<T, S> for Either<T, S> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         if self.current {
-            self.true_branch.event(ctx, event, data, env)
+            self.true_branch.event(ctx, event, data, style_parent, env)
         } else {
-            self.false_branch.event(ctx, event, data, env)
+            self.false_branch.event(ctx, event, data, style_parent, env)
         }
     }
 

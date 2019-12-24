@@ -32,14 +32,14 @@ struct ContainerStyle {
 }
 
 /// A convenience widget that combines common styling and positioning widgets.
-pub struct Container<T: Data> {
+pub struct Container<T: Data, S> {
     style: ContainerStyle,
-    inner: WidgetPod<T, Box<dyn Widget<T>>>,
+    inner: WidgetPod<T, S, Box<dyn Widget<T, S>>>,
 }
 
-impl<T: Data> Container<T> {
+impl<T: Data, S> Container<T, S> {
     /// Create Container with a child
-    pub fn new(inner: impl Widget<T> + 'static) -> Self {
+    pub fn new(inner: impl Widget<T, S> + 'static) -> Self {
         Self {
             style: ContainerStyle::default(),
             inner: WidgetPod::new(inner).boxed(),
@@ -62,9 +62,9 @@ impl<T: Data> Container<T> {
     }
 }
 
-impl<T: Data + 'static> Widget<T> for Container<T> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
-        self.inner.event(ctx, event, data, env);
+impl<T: Data + 'static, S> Widget<T, S> for Container<T, S> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
+        self.inner.event(ctx, event, data, style_parent, env);
     }
 
     fn update(&mut self, ctx: &mut UpdateCtx, _old_data: Option<&T>, data: &T, env: &Env) {

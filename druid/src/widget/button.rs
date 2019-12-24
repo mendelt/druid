@@ -30,7 +30,7 @@ pub struct Button<T> {
 impl<T: Data + 'static> Button<T> {
     /// Create a new button. The closure provided will be called when the button
     /// is clicked.
-    pub fn new(
+    pub fn new<S>(
         text: impl Into<LabelText<T>>,
         action: impl Fn(&mut EventCtx, &mut T, &Env) + 'static,
     ) -> Button<T> {
@@ -41,12 +41,12 @@ impl<T: Data + 'static> Button<T> {
     }
 
     /// Create a new button with a fixed size.
-    pub fn sized(
+    pub fn sized<S: 'static>(
         text: impl Into<LabelText<T>>,
         action: impl Fn(&mut EventCtx, &mut T, &Env) + 'static,
         width: f64,
         height: f64,
-    ) -> impl Widget<T> {
+    ) -> impl Widget<T, S> {
         Align::vertical(
             UnitPoint::CENTER,
             SizedBox::new(Button {
@@ -70,8 +70,8 @@ impl<T: Data + 'static> Button<T> {
     pub fn noop(_: &mut EventCtx, _: &mut T, _: &Env) {}
 }
 
-impl<T: Data> Widget<T> for Button<T> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+impl<T: Data, S> Widget<T, S> for Button<T> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         match event {
             Event::MouseDown(_) => {
                 ctx.set_active(true);

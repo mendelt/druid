@@ -35,7 +35,7 @@ pub struct Switch {
 }
 
 impl Switch {
-    pub fn new() -> impl Widget<bool> {
+    pub fn new<S>() -> impl Widget<bool, S> {
         Align::vertical(UnitPoint::CENTER, Self::default())
     }
 
@@ -110,7 +110,7 @@ impl Switch {
     }
 }
 
-impl Widget<bool> for Switch {
+impl<S> Widget<bool, S> for Switch {
     fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut bool, env: &Env) {
         let switch_height = env.get(theme::BORDERED_WIDGET_HEIGHT);
         let switch_width = switch_height * SWITCH_WIDTH_RATIO;

@@ -28,15 +28,15 @@ use crate::{BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, PaintCtx, Upd
 /// If not given a child, SizedBox will try to size itself as close to the specified height
 /// and width as possible given the parent's constraints. If height or width is not set,
 /// it will be treated as zero.
-pub struct SizedBox<T: Data> {
-    inner: Option<Box<dyn Widget<T>>>,
+pub struct SizedBox<T: Data, S> {
+    inner: Option<Box<dyn Widget<T, S>>>,
     width: Option<f64>,
     height: Option<f64>,
 }
 
-impl<T: Data> SizedBox<T> {
+impl<T: Data, S> SizedBox<T, S> {
     /// Construct container with child, and both width and height not set.
-    pub fn new(inner: impl Widget<T> + 'static) -> Self {
+    pub fn new(inner: impl Widget<T, S> + 'static) -> Self {
         Self {
             inner: Some(Box::new(inner)),
             width: None,
@@ -74,10 +74,10 @@ impl<T: Data> SizedBox<T> {
     }
 }
 
-impl<T: Data> Widget<T> for SizedBox<T> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+impl<T: Data, S> Widget<T, S> for SizedBox<T, S> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         if let Some(ref mut inner) = self.inner {
-            inner.event(ctx, event, data, env);
+            inner.event(ctx, event, data, style_parent, env);
         }
     }
 

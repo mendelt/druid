@@ -20,7 +20,7 @@ impl<T> Parse<T> {
     }
 }
 
-impl<T: FromStr + Display + Data, W: Widget<String>> Widget<Option<T>> for Parse<W> {
+impl<T: FromStr + Display + Data, S, W: Widget<String, S>> Widget<Option<T>, S> for Parse<W> {
     fn update(
         &mut self,
         ctx: &mut UpdateCtx,
@@ -36,8 +36,8 @@ impl<T: FromStr + Display + Data, W: Widget<String>> Widget<Option<T>> for Parse
         self.widget.update(ctx, old.as_ref(), &self.state, env)
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut Option<T>, env: &Env) {
-        self.widget.event(ctx, event, &mut self.state, env);
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut Option<T>, style_parent: &mut S, env: &Env) {
+        self.widget.event(ctx, event, &mut self.state, style_parent, env);
         *data = self.state.parse().ok();
     }
 

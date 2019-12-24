@@ -32,9 +32,9 @@ pub struct RadioGroup<T: Data + PartialEq + 'static> {
 
 impl<T: Data + PartialEq + 'static> RadioGroup<T> {
     /// Given a vector of `(label_text, enum_variant)` tuples, create a group of Radio buttons
-    pub fn new(
+    pub fn new<S: 'static>(
         variants: impl IntoIterator<Item = (impl Into<LabelText<T>> + 'static, T)>,
-    ) -> impl Widget<T> {
+    ) -> impl Widget<T, S> {
         let mut col = Flex::column();
         for (label, variant) in variants.into_iter() {
             let radio = Radio::new(label, variant);
@@ -45,14 +45,14 @@ impl<T: Data + PartialEq + 'static> RadioGroup<T> {
 }
 
 /// A single radio button
-pub struct Radio<T: Data + PartialEq> {
+pub struct Radio<T: Data + PartialEq, S> {
     variant: T,
-    child_label: WidgetPod<T, Box<dyn Widget<T>>>,
+    child_label: WidgetPod<T, S, Box<dyn Widget<T, S>>>,
 }
 
-impl<T: Data + PartialEq + 'static> Radio<T> {
+impl<T: Data + PartialEq + 'static, S: 'static> Radio<T, S> {
     /// Create a lone Radio button from label text and an enum variant
-    pub fn new(label: impl Into<LabelText<T>>, variant: T) -> impl Widget<T> {
+    pub fn new(label: impl Into<LabelText<T>>, variant: T) -> impl Widget<T, S> {
         let radio = Self {
             variant,
             child_label: WidgetPod::new(Label::new(label)).boxed(),
@@ -61,8 +61,8 @@ impl<T: Data + PartialEq + 'static> Radio<T> {
     }
 }
 
-impl<T: Data + PartialEq> Widget<T> for Radio<T> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, _env: &Env) {
+impl<T: Data + PartialEq, S> Widget<T, S> for Radio<T, S> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T,  style_parent: &mut S, _env: &Env) {
         match event {
             Event::MouseDown(_) => {
                 ctx.set_active(true);

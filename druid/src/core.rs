@@ -28,7 +28,7 @@ use crate::{
 };
 
 /// Convenience type for dynamic boxed widget.
-pub type BoxedWidget<T> = WidgetPod<T, Box<dyn Widget<T>>>;
+pub type BoxedWidget<T, S> = WidgetPod<T, S, Box<dyn Widget<T, S>>>;
 
 /// A container for one widget in the hierarchy.
 ///
@@ -42,7 +42,7 @@ pub type BoxedWidget<T> = WidgetPod<T, Box<dyn Widget<T>>>;
 /// widget can process a diff between the old value and the new.
 ///
 /// [`update`]: trait.Widget.html#tymethod.update
-pub struct WidgetPod<T: Data, W: Widget<T>> {
+pub struct WidgetPod<T: Data, S, W: Widget<T, S>> {
     state: BaseState,
     old_data: Option<T>,
     env: Option<Env>,
@@ -96,13 +96,13 @@ pub struct BaseState {
     pub(crate) request_focus: bool,
 }
 
-impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
+impl<T: Data, S, W: Widget<T, S>> WidgetPod<T, S, W> {
     /// Create a new widget pod.
     ///
     /// In a widget hierarchy, each widget is wrapped in a `WidgetPod`
     /// so it can participate in layout and event flow. The process of
     /// adding a child widget to a container should call this method.
-    pub fn new(inner: W) -> WidgetPod<T, W> {
+    pub fn new(inner: W) -> WidgetPod<T, S, W> {
         WidgetPod {
             state: Default::default(),
             old_data: None,
@@ -240,7 +240,7 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
     /// the event.
     ///
     /// [`event`]: trait.Widget.html#method.event
-    pub fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+    pub fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         // TODO: factor as much logic as possible into monomorphic functions.
         if ctx.is_handled || !event.recurse() {
             // This function is called by containers to propagate an event from
@@ -343,11 +343,11 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
         if let Some(is_hot) = hot_changed {
             let hot_changed_event = Event::HotChanged(is_hot);
             self.inner
-                .event(&mut child_ctx, &hot_changed_event, data, &env);
+                .event(&mut child_ctx, &hot_changed_event, data, style_parent, &env);
         }
         if recurse {
             child_ctx.base_state.has_active = false;
-            self.inner.event(&mut child_ctx, &child_event, data, &env);
+            self.inner.event(&mut child_ctx, &child_event, data, style_parent, &env);
             child_ctx.base_state.has_active |= child_ctx.base_state.is_active;
         };
         ctx.base_state.needs_inval |= child_ctx.base_state.needs_inval;
@@ -386,12 +386,12 @@ impl<T: Data, W: Widget<T>> WidgetPod<T, W> {
     }
 }
 
-impl<T: Data, W: Widget<T> + 'static> WidgetPod<T, W> {
+impl<T: Data, S, W: Widget<T, S> + 'static> WidgetPod<T, S, W> {
     /// Box the contained widget.
     ///
     /// Convert a `WidgetPod` containing a widget of a specific concrete type
     /// into a dynamically boxed widget.
-    pub fn boxed(self) -> BoxedWidget<T> {
+    pub fn boxed(self) -> BoxedWidget<T, S> {
         WidgetPod {
             state: self.state,
             old_data: self.old_data,

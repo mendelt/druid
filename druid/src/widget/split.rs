@@ -23,21 +23,21 @@ use crate::{
 };
 
 ///A container containing two other widgets, splitting the area either horizontally or vertically.
-pub struct Split<T: Data> {
+pub struct Split<T: Data, S> {
     split_direction: Axis,
     draggable: bool,
     split_point: f64,
     splitter_size: f64,
-    child1: WidgetPod<T, Box<dyn Widget<T>>>,
-    child2: WidgetPod<T, Box<dyn Widget<T>>>,
+    child1: WidgetPod<T, S, Box<dyn Widget<T, S>>>,
+    child2: WidgetPod<T, S, Box<dyn Widget<T, S>>>,
 }
 
-impl<T: Data> Split<T> {
+impl<T: Data, S> Split<T, S> {
     ///Create a new split panel.
     fn new(
         split_direction: Axis,
-        child1: impl Widget<T> + 'static,
-        child2: impl Widget<T> + 'static,
+        child1: impl Widget<T, S> + 'static,
+        child2: impl Widget<T, S> + 'static,
     ) -> Self {
         Split {
             split_direction,
@@ -49,11 +49,11 @@ impl<T: Data> Split<T> {
         }
     }
     /// Create a new split panel, splitting the vertical dimension between two children.
-    pub fn vertical(child1: impl Widget<T> + 'static, child2: impl Widget<T> + 'static) -> Self {
+    pub fn vertical(child1: impl Widget<T, S> + 'static, child2: impl Widget<T, S> + 'static) -> Self {
         Self::new(Axis::Vertical, child1, child2)
     }
     /// Create a new split panel, splitting the horizontal dimension between two children.
-    pub fn horizontal(child1: impl Widget<T> + 'static, child2: impl Widget<T> + 'static) -> Self {
+    pub fn horizontal(child1: impl Widget<T, S> + 'static, child2: impl Widget<T, S> + 'static) -> Self {
         Self::new(Axis::Horizontal, child1, child2)
     }
     /// Set container's split point as a fraction of the split dimension
@@ -124,16 +124,16 @@ impl<T: Data> Split<T> {
         }
     }
 }
-impl<T: Data> Widget<T> for Split<T> {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
+impl<T: Data, S> Widget<T, S> for Split<T, S> {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut T, style_parent: &mut S, env: &Env) {
         if self.child1.is_active() {
-            self.child1.event(ctx, event, data, env);
+            self.child1.event(ctx, event, data, style_parent, env);
             if ctx.is_handled() {
                 return;
             }
         }
         if self.child2.is_active() {
-            self.child2.event(ctx, event, data, env);
+            self.child2.event(ctx, event, data, style_parent, env);
             if ctx.is_handled() {
                 return;
             }
@@ -172,10 +172,10 @@ impl<T: Data> Widget<T> for Split<T> {
             }
         }
         if !self.child1.is_active() {
-            self.child1.event(ctx, event, data, env);
+            self.child1.event(ctx, event, data, style_parent, env);
         }
         if !self.child2.is_active() {
-            self.child2.event(ctx, event, data, env);
+            self.child2.event(ctx, event, data, style_parent, env);
         }
     }
 
