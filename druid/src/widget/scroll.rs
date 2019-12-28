@@ -16,6 +16,7 @@
 
 use log::error;
 use std::f64::INFINITY;
+use std::marker::PhantomData;
 use std::time::{Duration, Instant};
 
 use crate::kurbo::{Affine, Point, Rect, RoundedRect, Size, Vec2};
@@ -102,6 +103,8 @@ pub struct Scroll<T: Data, S, W: Widget<T, S>> {
     scroll_offset: Vec2,
     direction: ScrollDirection,
     scroll_bars: ScrollBarsState,
+
+    phantomS: PhantomData<S>,
 }
 
 impl<T: Data, S, W: Widget<T, S>> Scroll<T, S, W> {
@@ -117,6 +120,7 @@ impl<T: Data, S, W: Widget<T, S>> Scroll<T, S, W> {
             scroll_offset: Vec2::new(0.0, 0.0),
             direction: ScrollDirection::All,
             scroll_bars: ScrollBarsState::default(),
+            phantomS: Default::default(),
         }
     }
 

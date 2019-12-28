@@ -23,7 +23,8 @@ use crate::{BoxConstraints, Data, Env, Event, EventCtx, LayoutCtx, PaintCtx, Upd
 pub struct EnvScope<T: Data, S, W: Widget<T, S>> {
     f: Box<dyn Fn(&mut Env)>,
     child: W,
-    phantom: PhantomData<T>,
+    phantomT: PhantomData<T>,
+    phantomS: PhantomData<S>,
 }
 
 impl<T: Data, S, W: Widget<T, S>> EnvScope<T, S, W> {
@@ -52,7 +53,9 @@ impl<T: Data, S, W: Widget<T, S>> EnvScope<T, S, W> {
         EnvScope {
             f: Box::new(f),
             child,
-            phantom: Default::default(),
+
+            phantomT: Default::default(),
+            phantomS: Default::default(),
         }
     }
 }

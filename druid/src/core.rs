@@ -15,6 +15,7 @@
 //! The fundamental druid types.
 
 use std::collections::VecDeque;
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 use std::time::Instant;
 
@@ -47,6 +48,8 @@ pub struct WidgetPod<T: Data, S, W: Widget<T, S>> {
     old_data: Option<T>,
     env: Option<Env>,
     inner: W,
+    
+    phantomS: PhantomData<S>,
 }
 
 /// Generic state for all widgets in the hierarchy.
@@ -108,6 +111,7 @@ impl<T: Data, S, W: Widget<T, S>> WidgetPod<T, S, W> {
             old_data: None,
             env: None,
             inner,
+            phantomS: Default::default(),
         }
     }
 
@@ -397,6 +401,7 @@ impl<T: Data, S, W: Widget<T, S> + 'static> WidgetPod<T, S, W> {
             old_data: self.old_data,
             env: self.env,
             inner: Box::new(self.inner),
+            phantomS: Default::default(),
         }
     }
 }

@@ -223,7 +223,7 @@ impl TextBox {
 }
 
 impl<S> Widget<String, S> for TextBox {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut String, env: &Env) {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut String, style_parent: &mut S, env: &Env) {
         // Guard against external changes in data
         self.selection = self.selection.constrain_to(data);
 

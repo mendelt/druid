@@ -111,7 +111,7 @@ impl Switch {
 }
 
 impl<S> Widget<bool, S> for Switch {
-    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut bool, env: &Env) {
+    fn event(&mut self, ctx: &mut EventCtx, event: &Event, data: &mut bool, style_parent: &mut S, env: &Env) {
         let switch_height = env.get(theme::BORDERED_WIDGET_HEIGHT);
         let switch_width = switch_height * SWITCH_WIDTH_RATIO;
         let knob_size = switch_height - 2. * SWITCH_PADDING;
